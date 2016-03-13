@@ -1,7 +1,7 @@
 {
   "name": "SpotiPi-Server",
   "version": "0.0.1",
-  "description": "A server component to send SpotiPi events over a websocket connections.",
+  "description": "A server component to send SpotiPi events over a websocket connection.",
   "dependencies": {
     "socket.io": "^1.4.5"
   }
