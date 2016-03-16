@@ -1,6 +1,7 @@
 var spotiPi = require('./src/client.js');
 var spotifyApi = require('./src/spotifyAPI.js')('https://api.spotify.com/v1/');
 var slack = require('./src/slackInterface.js');
+var http = require('./src/httpInterface.js')(spotiPi);
 
 slack(spotiPi);
 
