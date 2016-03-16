@@ -1,5 +1,6 @@
 var spotiPi = require('./src/client.js');
 var slack = require('./src/slackInterface.js');
+var http = require('./src/httpInterface.js')(spotiPi);
 
 slack(spotiPi);
 
