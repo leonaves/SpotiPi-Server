@@ -1,26 +1,7 @@
-var io = require('socket.io')(3000);
-var stdin = process.openStdin();
+var spotiPi = require('./src/client.js');
+var slack = require('./src/slackInterface.js');
 
-process.stdout.write("play/pause/skip/<track uri>: ");
+slack(spotiPi);
 
-stdin.addListener("data", function(d) {
-    var command = d.toString().trim();
-    
-    switch(command) {
-        case 'play':
-            io.emit('play');
-            break;
-        case 'pause':
-            io.emit('pause');
-            break;
-        case 'skip':
-            io.emit('skip');
-            break;
-        default:
-            io.emit('add track to queue', command);
-    }
-    process.stdout.write("play/pause/skip/<track uri>: ");
-});
-
-io.on('connection', function(socket) {
-});
+//TODO: have options for http interface, slack interface, etc, defined in config.
+//Perhaps eventually move this out into plugins, but that's probably way down the line.
