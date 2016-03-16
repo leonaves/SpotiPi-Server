@@ -7,10 +7,10 @@ io.on('connection', function() {
 
 exports.searchAndAdd = function(searchQuery, callback) {
 
-    console.log(searchQuery);
+    console.log("Searching for..." + searchQuery);
+    var searchURI = encodeURI('https://api.spotify.com/v1/search?q=' + searchQuery + '&type=track&limit=1');
 
-    request('https://api.spotify.com/v1/search?q=track:' + searchQuery + '&type=track&limit=1')
-        .then(function (response) {
+    request(searchURI).then(function (response) {
             
             var track = JSON.parse(response).tracks.items[0];
             io.emit('add track to queue', track.uri);
@@ -21,7 +21,20 @@ exports.searchAndAdd = function(searchQuery, callback) {
             });
         })
         .catch(function (err) {
-            return "error: " + err;
+
+            console.log("error with Spotify web API request: " + err);
+            console.log("tried to search with URI: " + searchURI)
+
         });
+
+};
+
+exports.skip = function(callback) {
+
+    console.log("skipping...");
+
+    io.emit('skip');
+
+    callback();
 
 };
