@@ -4,6 +4,8 @@
   "description": "A server component to send SpotiPi events over a websocket connection.",
   "dependencies": {
     "@slack/client": "^2.2.1",
+    "body-parser": "^1.15.0",
+    "ejs": "^2.4.1",
     "express": "^4.13.4",
     "request-promise": "^2.0.1",
     "socket.io": "^1.4.5"

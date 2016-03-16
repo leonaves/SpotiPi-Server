@@ -5,6 +5,7 @@ var SpotifyAPI = function (baseUrl) {
 };
 
 SpotifyAPI.prototype.handleError = function (err) {
+    console.log("error with Spotify web API request: " + err);
 };
 
 SpotifyAPI.prototype.getUrl = function (action) {
@@ -13,7 +14,7 @@ SpotifyAPI.prototype.getUrl = function (action) {
 
 SpotifyAPI.prototype.search = function (query, callback) {
     var self = this,
-        searchURI = self.getUrl('search?q=' + query + '&type=track&limit=1');
+        searchURI = self.getUrl('search?q=' + query + '&type=track&limit=10');
 
     request(searchURI)
         .then(function (response) {

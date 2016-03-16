@@ -1,32 +1,43 @@
 var io = require('socket.io')(3000);
 var request = require('request-promise');
+var spotifyAPI = require('./spotifyAPI.js');
+var playlist = require('./playlist.js');
+
+var apiClient = new spotifyAPI('https://api.spotify.com/v1/');
 
 io.on('connection', function() {
     console.log('Client connected');
 });
 
+exports.search = function(searchQuery, callback) {
+    apiClient.search(searchQuery, callback);
+};
+
+exports.getPlaylist = function () {
+    return playlist.get();
+};
+
+exports.add = function (track) {
+    var queue = playlist.add(track);
+    io.emit('add track to queue', track.uri);
+    return queue;
+};
+
 exports.searchAndAdd = function(searchQuery, callback) {
 
     console.log("Searching for..." + searchQuery);
-    var searchURI = encodeURI('https://api.spotify.com/v1/search?q=' + searchQuery + '&type=track&limit=1');
 
-    request(searchURI).then(function (response) {
-            
-            var track = JSON.parse(response).tracks.items[0];
-            io.emit('add track to queue', track.uri);
+    apiClient.search(searchQuery, function (tracks) {
+        var track = tracks.items[0];
 
-            callback({
-                name: track.name,
-                artist: track.artists[0].name
-            });
-        })
-        .catch(function (err) {
+        io.emit('add track to queue', track.uri);
+        console.log('Queued track ' + track.artists[0].name + ': ' + track.name);
 
-            console.log("error with Spotify web API request: " + err);
-            console.log("tried to search with URI: " + searchURI)
-
+        callback({
+            name: track.name,
+            artist: track.artists[0].name
         });
-
+    });
 };
 
 exports.skip = function(callback) {
@@ -37,4 +48,24 @@ exports.skip = function(callback) {
 
     callback();
 
+};
+
+exports.play = function(callback) {
+    var callback = callback  || function() {};
+
+    console.log("playing...");
+
+    io.emit('play');
+
+    callback();
+};
+
+exports.pause = function(callback) {
+    var callback = callback  || function() {};
+
+    console.log("pausing...");
+
+    io.emit('pause');
+
+    callback();
 };
