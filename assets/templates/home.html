@@ -1,0 +1,56 @@
+<div zf-panel position="left" id="sub-nav" class="fast bounceInOut medium-2 medium-grid-block vertical">
+	<div class="grid-content">
+		<ul class="icon-left vertical menu-bar">
+		  <li><a href="#"><img zf-iconic="" data-src="/assets/img/iconic/ban.svg"> Songs</a></li>
+		  <li><a href="#"><img zf-iconic="" data-src="/assets/img/iconic/ban.svg"> Albums</a></li>
+		  <li><a href="#"><img zf-iconic="" data-src="/assets/img/iconic/ban.svg"> Artists</a></li>
+		</ul>
+	</div>
+	<div class="grid-content shrink now-playing" ng-controller="NowPlayingCtrl">
+		<h5>Now Playing</h5>
+		<img src="http://placehold.it/350x350&text=Album">
+		<p>Shake it off by Taylor Swift</p>
+	</div>
+</div>
+
+<div class="small-12 medium-7 messages grid-content">
+
+        <div ng-controller="SearchCtrl">
+            <br />
+            <input type="search" id="search" autocomplete="off" placeholder="keywords..." ng-model="searchQuery" ng-keyup="search()" />
+
+            <div class="grid-block small-up-2 medium-up-2 large-up-4">
+                <div ng-repeat="result in results" class="">
+                    <div class="card">
+                        <img ng-src="{{ result.album.images[1].url }}" />
+                        <div class="card-divider">
+                            {{ result.name }}
+                        </div>
+                        <div class="card-section">
+                            <p>
+                                {{ result.album.name }}<br />
+                                {{ result.artists[0].name }}
+
+                                <a class="success button" ng-click="queue(result)">Add to Queue</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+<div zf-panel id="feed" position="right" class="fast bounceInOut medium-3 medium-grid-content">
+    <section class="block-list" ng-controller="QueueCtrl">
+        <header>Queue</header>
+        <ul>
+            <li ng-repeat="track in queue">
+                <div class="grid-content">
+                    <img ng-src="{{ track.album.images[0].url }}" />
+                    {{ track.name }}<br />
+                    {{ track.artists[0].name }}
+                </div>
+            </li>
+        </ul>
+    </section>
+</div>

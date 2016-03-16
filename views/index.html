@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en" ng-app="application">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Spot Pi</title>
+        <link href="css/app.css" rel="stylesheet" type="text/css">
+    </head>
+
+    <style type="text/css">
+        #sub-nav { border-right: 1px solid #d0d0d0; }
+        #feed { border-left: 1px solid #d0d0d0; }
+        .player { border-top: 1px solid #d0d0d0; }
+        .player .menu-bar { margin-bottom: 0; }
+    </style>
+
+    <body>
+        <div class="grid-frame vertical">
+            <div class="dark title-bar">
+                <div class="center title"><a ui-sref="home">Spot Pi</a></div>
+                <span class="left hide-for-medium"><a zf-toggle="sub-nav">Menu</a></span>
+                <span class="right"><a ui-sref="settings">Settings</a></span>
+            </div>
+            <div ng-class="['ui-animation']" ui-view class="grid-block">
+
+            </div>
+            <div class="grid-block shrink player" ng-controller="PlayerCtrl">
+                <div class="medium-6 content show-for-medium">
+                    <ul class="menu-bar">
+                        <li><a href="#">
+                                <progress value="50" max="100"></progress>
+                            </a></li>
+                    </ul>
+                </div>
+
+                <div class="medium-3 content show-for-medium">
+                    <ul class="menu-bar">
+                        <li><a href="#">2:53</a></li>
+                        <li><a href="" ng-click="play()">Play</a></li>
+                        <li><a href="" ng-click="pause()">Pause</a></li>
+                        <li><a href="#">p</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/app.js"></script>
+        <script src="js/routes.js"></script>
+        <script src="js/angular.js"></script>
+        <script>
+            (function () {
+                'use strict';
+                var app = angular.module('application');
+
+                app.controller('NowPlayingCtrl', NowPlayingCtrl);
+                NowPlayingCtrl.$inject = ['$scope', '$http'];
+                function NowPlayingCtrl($scope, $http) {
+                }
+
+                app.controller('PlayerCtrl', PlayerCtrl);
+                PlayerCtrl.$inject = ['$scope', '$http'];
+                function PlayerCtrl($scope, $http) {
+                    $scope.play = function () {
+                        $http.get('api/play');
+                    };
+
+                    $scope.pause = function () {
+                        $http.get('api/pause');
+                    };
+                }
+
+                app.controller('QueueCtrl', QueueCtrl);
+                QueueCtrl.$inject = ['$scope', '$http', '$rootScope'];
+                function QueueCtrl($scope, $http, $rootScope) {
+                    $rootScope.queue = [];
+
+                    $rootScope.updateQueue = function () {
+                        $http.get('api/playlist').success(function(data) {
+                            $rootScope.queue = data;
+                        });
+                    }
+
+                    $rootScope.updateQueue();
+                }
+
+                app.controller('SearchCtrl', SearchCtrl);
+                SearchCtrl.$inject = ['$scope', '$http', '$rootScope'];
+                function SearchCtrl($scope, $http, $rootScope) {
+                    $scope.results = [];
+
+                    $scope.queue = function (track) {
+                        $http.post('api/queue', track).success(function (data) {
+                            $rootScope.updateQueue();
+                        });
+                    };
+
+                    $scope.search = function () {
+                        if ($scope.searchQuery.length < 3) {
+                            return;
+                        }
+
+                        $http.get('api/search?q=' + $scope.searchQuery).success(function(data) {
+                            console.dir(data);
+                            $scope.results = data.items;
+                        });
+                    };
+                }
+            })();
+        </script>
+    </body>
+</html>
