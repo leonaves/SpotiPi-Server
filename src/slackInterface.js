@@ -1,8 +1,14 @@
+'use strict';
+
 var config = require('../config.json');
+var token = config.slack_bot_API_key;
+
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
-var token = config.slack_bot_API_key;
 var rtm = new RtmClient(token);
+
+var spotifyAPI = require('./spotifyAPI.js');
+var spotify = new spotifyAPI('https://api.spotify.com/v1/');
 
 rtm.start();
 
@@ -31,9 +37,17 @@ module.exports = function(spotiPiClient) {
 
                 var searchQuery = messageContent.substring(index + 5, messageContent.length);
 
-                spotiPiClient.searchAndAdd(searchQuery, function (track) {
-                    rtm.sendMessage("I've queued up " + track.name + " by " + track.artist, message.channel);
-                });
+                spotify.search(searchQuery)
+                    .then(tracks => {
+                        return tracks.items[0];
+                    })
+                    .then(track => {
+                        spotiPiClient.add(track);
+                        return track;
+                    })
+                    .then(track => {
+                        rtm.sendMessage("I've queued up " + track.name + " by " + track.artists[0].name, message.channel);
+                    });
 
             } else if(messageContent.indexOf(' night ') > -1) {
 

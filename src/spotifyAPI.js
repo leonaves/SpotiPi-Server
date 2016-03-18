@@ -1,3 +1,5 @@
+'use strict';
+
 var request = require('request-promise');
 
 var SpotifyAPI = function (baseUrl) {
@@ -12,20 +14,12 @@ SpotifyAPI.prototype.getUrl = function (action) {
     return encodeURI(this.baseUrl + action);
 };
 
-SpotifyAPI.prototype.search = function (query, callback) {
-    var self = this,
-        searchURI = self.getUrl('search?q=' + query + '&type=track&limit=10');
+SpotifyAPI.prototype.search = function(query) {
+    let searchURI = this.getUrl('search?q=' + query + '&type=track&limit=10');
 
-    request(searchURI)
-        .then(function (response) {
-            var tracks = JSON.parse(response).tracks;
-            callback(tracks);
-        })
-        .catch(function (err) {
-            self.handleError(err);
-        })
-    ;
-
+    return request(searchURI)
+        .then(response => JSON.parse(response).tracks)
+        .catch(err => this.handleError(err));
 };
 
 module.exports = SpotifyAPI;
