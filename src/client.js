@@ -5,15 +5,11 @@ var playlist = require('./playlist.js');
 
 var spotify = new spotifyAPI('https://api.spotify.com/v1/');
 
-io.on('connection', function() {
-    console.log('Client connected');
-});
+io.on('connection', () => console.log('Client connected'));
 
-exports.getPlaylist = function () {
-    return playlist.get();
-};
+exports.getPlaylist = () => playlist.get();
 
-exports.add = function (track) {
+exports.add = track => {
     var queue = playlist.add(track);
     io.emit('add track to queue', track.uri);
     return queue;
