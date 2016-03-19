@@ -20,6 +20,8 @@ module.exports = function(client)
         if (messageIntent.action === 'add track') {
             let query = messageIntent.data;
             react('I\'ve queued up %trackName by %trackArtist', message.channel, addTrack, query)
+        } else if (messageIntent.action === 'skip') {
+            react('I agree, this one is rubbish.', message.channel, skipTrack)
         } else if (messageIntent.action === 'default') {
             react("Hey %user, why don't you try asking me to play something?", message.channel, () => ({ user: userString(message.user) }));
         }
@@ -37,6 +39,11 @@ module.exports = function(client)
             });
     }
 
+    function skipTrack() {
+        client.skip();
+        return null;
+    }
+
     function userString(userID) {
         return '<@' + userID + '>';
     }
@@ -52,9 +59,12 @@ module.exports = function(client)
             if ((index = messageText.indexOf(' add ')) > -1) {
                 data = messageText.substring(index + 5, messageText.length);
                 return { action: 'add track', data: data };
+            } else if (messageText.indexOf(' skip this') > -1) {
+                return {action: 'skip'};
+            } else {
+                return { action: 'default' };
             }
 
-            return { action: 'default' };
         } else {
             return { action: false };
         }
