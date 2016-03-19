@@ -18,21 +18,25 @@ module.exports = function(client)
         let messageIntent = intent(message);
 
         if (messageIntent.action === 'add track') {
-            react('I\'ve queued up %trackName by %trackArtist', addTrack)
+            let query = messageIntent.data;
+            react('I\'ve queued up %trackName by %trackArtist', message.channel, addTrack, query)
         } else if (messageIntent.action === 'default') {
-            react("Hey " + userString(message.user) + ", why don't you try asking me to play something?");
+            react("Hey %user, why don't you try asking me to play something?", message.channel, () => ({ user: userString(message.user) }));
         }
     });
 
     function addTrack(query) {
-        spotify.search(query)
+        return spotify.search(query)
             .then(tracks => {
                 let track = tracks.items[0];
                 client.add(track);
-                rtm.sendMessage("I've queued up " + track.name + " by " + track.artists[0].name, message.channel);
+                return {
+                    trackName: track.name,
+                    trackArtist: track.artists[0].name
+                }
             });
     }
-    
+
     function userString(userID) {
         return '<@' + userID + '>';
     }
@@ -56,19 +60,36 @@ module.exports = function(client)
         }
     }
 
-    function react(response, action) {
-        let returnVal = action === undefined ? {} : action();
-        let responseParams = returnVal === null ? {} : returnVal;
+    function react(response, channel, action) {
+        action = action === undefined ? () => null : action;
+        if (typeof action !== 'function') throw new InvalidActionError();
 
-        if (typeof responseParams !== 'object') {
-            throw new Error('Action must return an object mapping response parameters to strings, a Promise that—when fulfilled–returns the same, or null.');
+        let args = Array.prototype.slice.call(arguments);
+        let actionResult = action.apply(undefined, args.slice(3, args.length));
+        actionResult = actionResult === null ? {} : actionResult;
+
+        if (typeof actionResult !== 'object') {
+            throw new InvalidActionError();
         }
 
-        for (let param in responseParams) {
-            response = response.replace('%' + param, responseParams['param']);
+        if (typeof actionResult.then === 'function') {
+            actionResult.then(responseParams => {
+                rtm.sendMessage(replaceParams(response, responseParams), channel);
+            });
+        } else {
+            rtm.sendMessage(replaceParams(response, actionResult), channel);
         }
 
-        rtm.sendMessage(response, message.channel);
+        function replaceParams(text, paramObj) {
+            for (let param in paramObj) {
+                text = text.replace('%' + param, paramObj[param]);
+            }
+            return text;
+        }
+
+        function InvalidActionError() {
+            return new Error('Action must be a function returning an object mapping response parameters to strings, a Promise that—when fulfilled–returns the same, or null.');
+        }
     }
 
 };
