@@ -9,8 +9,7 @@ module.exports = function(client)
     var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
     var rtm = new RtmClient(token);
 
-    var spotifyAPI = require('./spotifyAPI.js');
-    var spotify = new spotifyAPI('https://api.spotify.com/v1/');
+    var spotify = require('./spotifyAPI.js');
 
     rtm.start();
 

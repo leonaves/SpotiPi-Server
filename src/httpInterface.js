@@ -2,9 +2,7 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var spotifyAPI = require('./spotifyAPI.js');
-
-var spotify = new spotifyAPI('https://api.spotify.com/v1/');
+var spotify = require('./spotifyAPI.js');
 
 module.exports = function (spotiPiClient, playlist) {
     var app = express();
@@ -15,33 +13,33 @@ module.exports = function (spotiPiClient, playlist) {
     app.set('views', __dirname + '/../views');
     app.engine('html', require('ejs').renderFile);
 
-    app.get('/', (req, res) =>
-        res.render('index.html')
-    );
+    app.get('/', (req, res) => {
+        res.render('index.html');
+    });
     
-    app.get('/api/play', (req, res) =>
+    app.get('/api/play', (req, res) => {
         spotiPiClient.play()
-            .then(res.json({ 'status': 'playing' }))
-            .catch(e => console.log(e))
-    );
+            .then(res.json({'status': 'playing'}))
+            .catch(e => console.log(e));
+    });
 
-    app.get('/api/pause', (req, res) =>
+    app.get('/api/pause', (req, res) => {
         spotiPiClient.pause()
-            .then(res.json({ 'status': 'paused' }))
-            .catch(e => console.log(e))
-    );
+            .then(res.json({'status': 'paused'}))
+            .catch(e => console.log(e));
+    });
 
-    app.get('/api/playlist', (req, res) =>
-        res.json(spotiPiClient.getPlaylist())
-    );
+    app.get('/api/playlist', (req, res) => {
+        res.json(spotiPiClient.getPlaylist());
+    });
 
-    app.post('/api/queue', (req, res) =>
-        res.json({ 'added': true, 'queue': spotiPiClient.add(req.body) })
-    );
+    app.post('/api/queue', (req, res) => {
+        res.json({'added': true, 'queue': spotiPiClient.add(req.body)});
+    });
 
-    app.get('/api/search', (req, res) =>
+    app.get('/api/search', (req, res) => {
         req.query.hasOwnProperty('q')
             ? spotify.search(req.query.q).then(tracks => res.json(tracks))
-            : res.json({ 'error': 'Must specify a query' })
-    );
+            : res.json({'error': 'Must specify a query'});
+    });
 };
