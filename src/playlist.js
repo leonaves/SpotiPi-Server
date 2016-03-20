@@ -1,11 +1,18 @@
-var queue = [];
+module.exports = (function()
+{
+    var queue = [];
 
-exports.get = function (err) {
-    return queue;
-};
+    function get() {
+        return queue;
+    }
 
-exports.add = function (track) {
-    queue.push(track);
+    function add(track) {
+        queue.push(track);
+        return queue;
+    }
 
-    return queue;
-};
+    return {
+        get: get,
+        add: add
+    }
+})();

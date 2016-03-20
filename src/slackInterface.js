@@ -98,7 +98,7 @@ module.exports = function(client)
         }
 
         function InvalidActionError() {
-            return new Error('Action must be a function returning an object mapping response parameters to strings, a Promise that—when fulfilled–returns the same, or null.');
+            return new Error('Action must be a function returning an object mapping response parameters to strings, null, or a Promise that — when fulfilled – returns one of those.');
         }
     }
 
