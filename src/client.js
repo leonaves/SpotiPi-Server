@@ -1,18 +1,17 @@
 var io = require('socket.io')(3000);
 var request = require('request-promise');
-var spotify = require('./spotifyAPI.js');
-var playlist = require('./playlist.js');
+var queue = require('./queue.js');
 
 module.exports = (function()
 {
     io.on('connection', () => console.log('Client connected'));
 
-    function getPlaylist() {
-        playlist.get();
+    function getQueue() {
+        queue.get();
     }
 
     function add(track) {
-        var queue = playlist.add(track);
+        let queue = queue.add(track);
         io.emit('add track to queue', track.uri);
         return queue;
     }
@@ -39,7 +38,7 @@ module.exports = (function()
     }
     
     return {
-        getPlaylist: getPlaylist,
+        getQueue: getQueue,
         add: add,
         skip: skip,
         play: play,
