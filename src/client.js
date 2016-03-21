@@ -1,37 +1,48 @@
 var io = require('socket.io')(3000);
 var request = require('request-promise');
-var spotifyAPI = require('./spotifyAPI.js');
+var spotify = require('./spotifyAPI.js');
 var playlist = require('./playlist.js');
 
-var spotify = new spotifyAPI('https://api.spotify.com/v1/');
+module.exports = (function()
+{
+    io.on('connection', () => console.log('Client connected'));
 
-io.on('connection', () => console.log('Client connected'));
+    function getPlaylist() {
+        playlist.get();
+    }
 
-exports.getPlaylist = () => playlist.get();
+    function add(track) {
+        var queue = playlist.add(track);
+        io.emit('add track to queue', track.uri);
+        return queue;
+    }
 
-exports.add = track => {
-    var queue = playlist.add(track);
-    io.emit('add track to queue', track.uri);
-    return queue;
-};
+    function skip() {
+        return new Promise(fulfill => {
+            io.emit('skip');
+            return fulfill();
+        });
+    }
 
-exports.skip = () => (
-    new Promise((fulfill) => {
-        io.emit('skip');
-        return fulfill();
-    })
-);
+    function play() {
+        return new Promise(fulfill => {
+            io.emit('play');
+            return fulfill();
+        });
+    }
 
-exports.play = () => (
-    new Promise((fulfill) => {
-        io.emit('play');
-        return fulfill();
-    })
-);
-
-exports.pause = () => (
-    new Promise((fulfill) => {
-        io.emit('pause');
-        return fulfill();
-    })
-);
+    function pause() {
+        return new Promise(fulfill => {
+            io.emit('pause');
+            return fulfill();
+        });
+    }
+    
+    return {
+        getPlaylist: getPlaylist,
+        add: add,
+        skip: skip,
+        play: play,
+        pause: pause
+    }
+})();
